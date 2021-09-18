@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'dog.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'db_helper3.dart';
 
 class AddNote extends StatefulWidget {
-  AddNote({this.name, this.age, this.id});
+  AddNote({required this.id});
 
   String? name;
   int? age;
@@ -33,34 +35,31 @@ final ageC = TextEditingController();
 final idC = TextEditingController();
 
 class _AddNoteState extends State<AddNote> {
-  int _counter = 0;
   static var db = DatabaseHelper.instance;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  void initState() {
+    super.initState();
+
+    // print(widget.id);
+    if (widget.id != null) {
+      idC.text = widget.id.toString();
+      db.query(widget.id!).then((value) {
+        Map<String, dynamic> dog = value[0];
+        nameC.text = dog['name'];
+        ageC.text = dog['age'].toString();
+      });
+    }
+    else{
+      nameC.text = "";
+      ageC.text = "";
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          // title: Text(widget.title),
-          ),
+      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: SingleChildScrollView(
@@ -68,13 +67,6 @@ class _AddNoteState extends State<AddNote> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                // const Text(
-                //   'You have pushed the button this many times:',
-                // ),
-                // Text(
-                //   '$_counter',
-                //   style: Theme.of(context).textTheme.headline4,
-                // ),
                 TextFormField(
                   controller: nameC,
                   decoration: const InputDecoration(hintText: 'enter name'),
@@ -83,64 +75,46 @@ class _AddNoteState extends State<AddNote> {
                   controller: ageC,
                   decoration: const InputDecoration(hintText: 'enter age'),
                 ),
-                // TextFormField(
-                //   controller: idC,
-                //   decoration: const InputDecoration(hintText: 'enter id'),
-                // ),
-                // ElevatedButton(
-                //     onPressed: () {
-                //       Navigator.push(context,
-                //           MaterialPageRoute(builder: (c) => NoteList()));
-                //     },
-                //     child: Text('list')),
-                // ElevatedButton(
-                //   // textTheme: ButtonTextTheme.primary,
-                //     child: const Text("get"),
-                //     onPressed: () {
-                //       db.queryAll().then((value) {
-                //         print(value.toString());
-                //         // AlertDialog(title: Text(value.toString()));
-                //         showDialog(
-                //             context: context,
-                //             builder: (c) =>
-                //                 AlertDialog(
-                //                   title: Text(value.toString()),
-                //                 ));
-                //       });
-                //     }),
-                ElevatedButton(
-                    // textTheme: ButtonTextTheme.primary,
-                    child: const Text("insert"),
-                    onPressed: () {
-                      db
-                          .insert(Dog(
-                                  // -1,
-                                  // id: int.parse(idC.text),
-                                  id: 0,
-                                  name: nameC.text,
-                                  age: int.parse(ageC.text))
-                              .toMap())
-                          .then((value) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('successfully inserted')));
-                        // showDialog(
-                        //   context: context,
-                        //   builder: (c) => AlertDialog(
-                        //         title: Text(
-                        //             'successfully inserted ${toString()}'),
-                        //       ));
-                      });
-                    }),
+                widget.id == null
+                    ? ElevatedButton(
+                        // textTheme: ButtonTextTheme.primary,
+                        child: const Text("add"),
+                        onPressed: () {
+                          db
+                              .insert(Dog(
+                                      // -1,
+                                      // id: int.parse(idC.text),
+                                      // id: 0,
+                                      name: nameC.text,
+                                      age: int.parse(ageC.text))
+                                  .toMap())
+                              .then((value) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text('successfully inserted')));
+                          });
+                        })
+                    : ElevatedButton(
+                        // textTheme: ButtonTextTheme.primary,
+                        child: const Text("update"),
+                        onPressed: () {
+                          db
+                              .update(Dog(
+                                      // -1,
+                                      // id: int.parse(idC.text),
+                                      id: widget.id,
+                                      name: nameC.text,
+                                      age: int.parse(ageC.text))
+                                  .toMap())
+                              .then((value) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content: Text('successfully updated')));
+                          });
+                        }),
               ],
             ),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

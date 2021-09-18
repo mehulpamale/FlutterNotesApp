@@ -46,8 +46,14 @@ class DatabaseHelper {
 
   Future<void> insert(Map<String, dynamic> row) async {
     Database? db = await instance.database;
-    return await db!.execute(
-        'INSERT INTO $_tablename VALUES(NULL, ${row['name']}, ${row['age']})');
+    return await db!
+        .execute('INSERT INTO $_tablename VALUES(NULL, \'${row['name']}\', '
+            '${row['age']})');
+  }
+
+  Future<List<Map<String, dynamic>>> query(int id) async {
+    Database? db = await instance.database;
+    return await db!.query(_tablename, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<List<Map<String, dynamic>>> queryAll() async {

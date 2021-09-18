@@ -51,14 +51,17 @@ class _NoteListState extends State<NoteList> {
                   },
                 ),
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (c) => AddNote.fromExisting(dog['id']))),
+                        context,
+                        MaterialPageRoute(
+                            builder: (c) => AddNote.fromExisting(dog['id'])))
+                    .then((value) => fetchList()),
                 title: Column(
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('id: ${dog['id']}'),
                           Text('name: ${dog['name']}'),
@@ -71,76 +74,6 @@ class _NoteListState extends State<NoteList> {
               ),
             );
           }),
-      // FutureBuilder(
-      //   future: db.queryAll(),
-      //   builder: (c, snap) {
-      //     if (snap.connectionState == ConnectionState.none && !snap.hasData) {
-      //       return Text('no data');
-      //     } else {
-      //       List<Map<String, dynamic>> dogs = List.empty();
-      //       setState(() {
-      //         dogs = snap.data as List<Map<String, dynamic>>;
-      //       });
-      //       return ListView.builder(
-      //           itemCount: dogs.length,
-      //           itemBuilder: (c, i) {
-      //             return Card(
-      //               child: ListTile(
-      //                 trailing: IconButton(
-      //                   icon: Icon(Icons.delete),
-      //                   onPressed: () {
-      //                     db.delete(dog['id']);
-      //                   },
-      //                 ),
-      //                 title: Column(
-      //                   children: [
-      //                     Padding(
-      //                       padding: const EdgeInsets.all(20.0),
-      //                       child: Text(dog.toString()),
-      //                     ),
-      //                   ],
-      //                 ),
-      //               ),
-      //             );
-      //           });
-      //     }
-      //   },
-      // ),
-/*        FutureBuilder(
-        future: db.queryAll(),
-        builder: (c, snap) {
-          if (snap.connectionState == ConnectionState.none && !snap.hasData) {
-            return Text('no data');
-          } else {
-            List<Map<String, dynamic>> dogs = List.empty();
-            setState(() {
-              dogs = snap.data as List<Map<String, dynamic>>;
-            });
-            return ListView.builder(
-                itemCount: dogs.length,
-                itemBuilder: (c, i) {
-                  return Card(
-                    child: ListTile(
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () {
-                          db.delete(dog['id']);
-                        },
-                      ),
-                      title: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Text(dog.toString()),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                });
-          }
-        },
-      )*/
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -155,8 +88,8 @@ class _NoteListState extends State<NoteList> {
           FloatingActionButton(
             heroTag: 'fab1',
             onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (c) => AddNote()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (c) => AddNote(id: null)));
             },
             tooltip: 'add note',
             child: Icon(Icons.add),
